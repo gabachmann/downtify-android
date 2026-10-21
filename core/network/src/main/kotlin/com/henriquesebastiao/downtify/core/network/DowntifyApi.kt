@@ -23,6 +23,7 @@ import com.henriquesebastiao.downtify.core.network.dto.PodcastShowDto
 import com.henriquesebastiao.downtify.core.network.dto.ServerInfoDto
 import kotlinx.serialization.json.JsonArray
 import kotlinx.serialization.json.JsonObject
+import okhttp3.ResponseBody
 import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.DELETE
@@ -40,6 +41,9 @@ import retrofit2.http.Query
 interface DowntifyApi {
     @GET("api/server/info")
     suspend fun serverInfo(): ServerInfoDto
+
+    @GET("api/server/info")
+    suspend fun serverInfoRaw(): Response<ResponseBody>
 
     @GET("api/auth/status")
     suspend fun authStatus(): AuthStatusDto
