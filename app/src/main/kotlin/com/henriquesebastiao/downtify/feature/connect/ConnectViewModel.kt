@@ -39,7 +39,7 @@ sealed interface ConnectStep {
 sealed interface ConnectError {
     data object InvalidAddress : ConnectError
     data object Unreachable : ConnectError
-    data object NotDowntify : ConnectError
+    data class NotDowntify(val reason: String) : ConnectError
     data class TooNew(val version: String) : ConnectError
     data object WrongCode : ConnectError
     data class TooManyAttempts(val secondsLeft: Int) : ConnectError
@@ -144,7 +144,7 @@ class ConnectViewModel @Inject constructor(private val server: ServerRepository,
 
                 ServerProbe.Result.Unreachable -> ConnectError.Unreachable
 
-                ServerProbe.Result.NotDowntify -> ConnectError.NotDowntify
+                is ServerProbe.Result.NotDowntify -> ConnectError.NotDowntify(result.reason)
 
                 is ServerProbe.Result.TooNew -> ConnectError.TooNew(result.info.version)
             }
@@ -192,8 +192,8 @@ class ConnectViewModel @Inject constructor(private val server: ServerRepository,
                     }
                 }
 
-                ServerProbe.Result.NotDowntify -> form.update {
-                    it.copy(busy = false, error = ConnectError.NotDowntify)
+                is ServerProbe.Result.NotDowntify -> form.update {
+                    it.copy(busy = false, error = ConnectError.NotDowntify(result.reason))
                 }
 
                 is ServerProbe.Result.TooNew -> form.update {
