@@ -43,7 +43,7 @@ class ServerProbe @Inject constructor(private val apis: ApiFactory) {
         } catch (e: CancellationException) {
             throw e
         } catch (e: SerializationException) {
-            return Result.NotDowntify("JSON: ${e.message?.take(180) ?: \"falha ao interpretar resposta\"}")
+            return Result.NotDowntify("JSON: ${e.message?.take(180) ?: "falha ao interpretar resposta"}")
         } catch (e: Exception) {
             return if (e.httpStatus != null) Result.NotDowntify("HTTP ${e.httpStatus}") else Result.NotDowntify("Rede: ${e.javaClass.simpleName}: ${e.message?.take(160).orEmpty()}")
         }
