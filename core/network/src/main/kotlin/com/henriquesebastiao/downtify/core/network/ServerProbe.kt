@@ -43,7 +43,16 @@ class ServerProbe @Inject constructor(private val apis: ApiFactory) {
         } catch (e: CancellationException) {
             throw e
         } catch (e: SerializationException) {
-            return Result.NotDowntify("JSON: ${e.message?.take(180) ?: "falha ao interpretar resposta"}")
+            val details = try {
+                val response = apis.create(baseUrl).serverInfoRaw()
+                val finalUrl = response.raw().request.url.toString()
+                val type = response.headers()["Content-Type"].orEmpty()
+                val preview = response.body()?.string()?.take(120)?.replace("\\s+".toRegex(), " ").orEmpty()
+                "HTTP ${response.code()} | URL: ${finalUrl} | Tipo: ${type} | Início: ${preview}"
+            } catch (detailError: Exception) {
+                "Falha ao inspecionar resposta: ${detailError.javaClass.simpleName}"
+            }
+            return Result.NotDowntify(details)
         } catch (e: Exception) {
             return if (e.httpStatus != null) Result.NotDowntify("HTTP ${e.httpStatus}") else Result.NotDowntify("Rede: ${e.javaClass.simpleName}: ${e.message?.take(160).orEmpty()}")
         }
