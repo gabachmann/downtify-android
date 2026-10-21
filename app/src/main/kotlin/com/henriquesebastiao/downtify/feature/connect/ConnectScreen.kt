@@ -434,7 +434,7 @@ private fun errorText(error: ConnectError?): String? = when (error) {
     null -> null
     ConnectError.InvalidAddress -> stringResource(R.string.connect_error_invalid)
     ConnectError.Unreachable -> stringResource(R.string.connect_error_unreachable)
-    ConnectError.NotDowntify -> stringResource(R.string.connect_error_not_downtify)
+    is ConnectError.NotDowntify -> "Diagnóstico: ${error.reason}"
     is ConnectError.TooNew -> stringResource(R.string.connect_error_too_new, error.version)
     ConnectError.WrongCode -> stringResource(R.string.pair_error_wrong_code)
     is ConnectError.TooManyAttempts -> stringResource(R.string.pair_error_too_many, error.secondsLeft)
