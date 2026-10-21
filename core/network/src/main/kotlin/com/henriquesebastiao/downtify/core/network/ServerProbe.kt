@@ -14,7 +14,7 @@ class ServerProbe @Inject constructor(private val apis: ApiFactory) {
         data object Unreachable : Result
 
         /** Something answered, but it isn't a Downtify server. */
-        data object NotDowntify : Result
+        data class NotDowntify(val reason: String) : Result
 
         /** A Downtify whose API is newer than this app understands: update the app. */
         data class TooNew(val info: ServerInfo) : Result
@@ -28,7 +28,7 @@ class ServerProbe @Inject constructor(private val apis: ApiFactory) {
         for (baseUrl in candidates) {
             when (val result = check(baseUrl)) {
                 is Result.Found, is Result.TooNew -> return result
-                Result.NotDowntify -> best = result
+                is Result.NotDowntify -> best = result
                 else -> Unit
             }
         }
@@ -42,14 +42,14 @@ class ServerProbe @Inject constructor(private val apis: ApiFactory) {
             apis.create(baseUrl).serverInfo().toModel()
         } catch (e: CancellationException) {
             throw e
-        } catch (_: SerializationException) {
-            return Result.NotDowntify
+        } catch (e: SerializationException) {
+            return Result.NotDowntify("JSON: ${e.message?.take(180) ?: \"falha ao interpretar resposta\"}")
         } catch (e: Exception) {
-            return if (e.httpStatus != null) Result.NotDowntify else Result.Unreachable
+            return if (e.httpStatus != null) Result.NotDowntify("HTTP ${e.httpStatus}") else Result.NotDowntify("Rede: ${e.javaClass.simpleName}: ${e.message?.take(160).orEmpty()}")
         }
         return when (info.compatibility) {
             ServerInfo.Compatibility.Ok -> Result.Found(baseUrl, info)
-            ServerInfo.Compatibility.NotDowntify -> Result.NotDowntify
+            ServerInfo.Compatibility.NotDowntify -> Result.NotDowntify("Produto recebido: ${info.product.take(80)}; API: ${info.apiVersion}")
             ServerInfo.Compatibility.TooNew -> Result.TooNew(info)
         }
     }
