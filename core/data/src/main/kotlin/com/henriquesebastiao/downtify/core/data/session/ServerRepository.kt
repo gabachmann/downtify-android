@@ -140,7 +140,7 @@ class ServerRepository @Inject constructor(
                 }
             }
 
-            ServerProbe.Result.NotDowntify, is ServerProbe.Result.TooNew -> ConnectionState.DifferentServer
+            is ServerProbe.Result.NotDowntify, is ServerProbe.Result.TooNew -> ConnectionState.DifferentServer
 
             else -> ConnectionState.Unreachable
         }
