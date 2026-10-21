@@ -1,0 +1,26 @@
+name: APK de diagnostico Android
+on:
+  workflow_dispatch:
+  push:
+    branches: [diagnostico-conexao-android14]
+permissions:
+  contents: read
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+      - uses: android-actions/setup-android@v3
+      - name: Compilar APK de teste
+        run: |
+          chmod +x ./gradlew
+          ./gradlew :app:assembleDebug --stacktrace
+      - uses: actions/upload-artifact@v4
+        with:
+          name: downtify-android14-diagnostico
+          path: app/build/outputs/apk/debug/*.apk
+          if-no-files-found: error
